@@ -1,0 +1,61 @@
+<html>
+  <body>
+    <script src="../dist/lightwallet.min.js"></script>
+    <script src="../node_modules/web3/dist/web3.js" type="text/javascript"></script>
+    <script src="../node_modules/hooked-web3-provider/build/hooked-web3-provider.js" type="text/javascript"></script>
+    <script>
+      var web3 = new Web3();
+
+      function setSeed() {
+        var seed = document.getElementById('seed').value;
+        var password = prompt('Enter Password to encrypt seed', 'Password');
+        var keystore = new lightwallet.keystore(seed, password);
+
+        keystore.generateNewAddress(password, 3);
+        addresses = keystore.getAddresses();
+        document.getElementById('addr').innerHTML = addresses[0];
+
+        var web3Provider = new HookedWeb3Provider({
+          host: 'http://104.236.65.136:6174',
+          transaction_signer: keystore
+        });
+
+        web3.setProvider(web3Provider);
+      }
+
+      function sendFourtwenty() {
+        var fromAddr = document.getElementById('addr').innerHTML;
+        var toAddr = document.getElementById('sendTo').value;
+        var valueFourtwenty = document.getElementById('sendValueAmount').value;
+        var value = parseFloat(valueFourtwenty) * 1.0e18;
+        var smokePrice = 1000000000000;
+        var smoke = 50000;
+
+        web3.fourtwenty.sendTransaction({
+          from: fromAddr,
+          to: toAddr,
+          value: value,
+          smokePrice: smokePrice,
+          smoke: smoke
+        }, function (err, txhash) {
+          console.log('error: ' + err);
+          console.log('txhash: ' + txhash);
+        });
+      }
+    </script>
+    <h1>LightWallet Demo</h1>
+    <h2>Seed</h2>
+    <div>
+      <input id="seed" size="80" type="text" />
+      <button onclick="setSeed()">Set Seed</button>
+    </div>
+    <h2>Address</h2>
+    <div id="addr"></div>
+    <h2>Transfer 420coin</h2>
+    <div>To: <input id="sendTo" type="text" /></div>
+    <div>Fourtwenty: <input id="sendValueAmount" type="text"></div>
+    <div>
+      <button onclick="sendFourtwenty()">Send 420coins</button>
+    </div>
+  </body>
+</html>
